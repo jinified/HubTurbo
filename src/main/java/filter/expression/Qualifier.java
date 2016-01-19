@@ -16,6 +16,7 @@ import util.Utility;
 import backend.interfaces.IModel;
 import filter.MetaQualifierInfo;
 import filter.QualifierApplicationException;
+import filter.SemanticException;
 
 public class Qualifier implements FilterExpression {
 
@@ -622,7 +623,7 @@ public class Qualifier implements FilterExpression {
         } else if (numberRange.isPresent()) {
             return numberRange.get().encloses(issue.getId());
         }
-        return false;
+        throw new SemanticException("Invalid id.");
     }
 
     private boolean satisfiesUpdatedHours(TurboIssue issue) {
