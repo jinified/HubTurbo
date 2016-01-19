@@ -15,6 +15,7 @@ import backend.interfaces.IModel;
 import backend.resource.*;
 import filter.ParseException;
 import filter.Parser;
+import filter.SemanticException;
 import filter.expression.FilterExpression;
 import filter.expression.Qualifier;
 import prefs.Preferences;
@@ -53,7 +54,7 @@ public class FilterEvalTests {
         assertEquals(false, Qualifier.process(model, Qualifier.FALSE, issue));
     }
 
-    @Test
+    @Test(expected = SemanticException.class)
     public void id() {
         TurboIssue issue1 = new TurboIssue(REPO, 1, "1");
 
@@ -69,8 +70,9 @@ public class FilterEvalTests {
         assertEquals(true, matches("id:>0", issue1));
         assertEquals(true, matches("id:>=0", issue1));
 
-        // Non-number
-        assertEquals(false, matches("id:a", issue1));
+        // Non-number should throw SemanticException
+        assertEquals("Semantic error in filter: Invalid id", 
+                matches("id:a", issue1));
     }
 
     private void testForPresenceOfKeywords(String prefix, TurboIssue issue) {
