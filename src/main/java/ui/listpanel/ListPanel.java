@@ -23,6 +23,7 @@ import ui.issuepanel.PanelControl;
 import util.GithubPageElements;
 import util.KeyPress;
 import util.events.IssueSelectedEvent;
+import util.events.ShowIssueCreatorEvent;
 import util.events.ShowLabelPickerEvent;
 import backend.interfaces.IModel;
 import backend.resource.TurboIssue;
@@ -223,6 +224,9 @@ public class ListPanel extends FilterPanel {
                     changeLabels();
                 }
             }
+            if (SHOW_VIEWER.match(event)) {
+                createIssue();
+            }
             if (MANAGE_ASSIGNEES.match(event) && ui.getBrowserComponent().isCurrentUrlIssue()) {
                 ui.getBrowserComponent().switchToTab(DISCUSSION_TAB);
                 ui.getBrowserComponent().manageAssignees(event.getCode().toString());
@@ -369,5 +373,9 @@ public class ListPanel extends FilterPanel {
         if (getSelectedIssue().isPresent()) {
             ui.triggerEvent(new ShowLabelPickerEvent(getSelectedIssue().get()));
         }
+    }
+
+    private void createIssue() {
+        ui.triggerEvent(new ShowIssueCreatorEvent());
     }
 }
