@@ -260,6 +260,14 @@ public class GitHubRepo implements Repo {
     }
 
     @Override
+    public Issue setIssue(String repoId, Issue issue) throws IOException {
+        System.out.println(issue.getTitle());
+        return issueService.createIssue(
+                RepositoryId.createFromId(repoId), 
+                issue);
+    }
+
+    @Override
     public boolean isRepositoryValid(String repoId) {
         String repoURL = SEGMENT_REPOS + "/" + repoId;
         try {
