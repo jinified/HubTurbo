@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import javafx.application.Platform;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
 import ui.UI;
 import util.events.ShowIssueCreatorEventHandler;
@@ -22,10 +23,10 @@ public class IssueCreator {
     }
 
     private void showIssueCreator() {
-        // create new IssueCreatorDialog
-        IssueCreatorDialog issueCreatorDialog = new IssueCreatorDialog(stage);
-        Optional<List<String>> result = issueCreatorDialog.showAndWait();
-        stage.show(); // ensures stage is showing after label picker is closed (mostly for tests)
+        Stage issueStage = new Stage();
+        issueStage.setScene(new Scene(new IssueCreatorPresenter(ui)));
+        issueStage.setTitle("Issue Creator");
+        issueStage.show();
     }
 
 }
