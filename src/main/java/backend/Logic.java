@@ -5,8 +5,11 @@ import backend.resource.Model;
 import backend.resource.MultiModel;
 import backend.resource.TurboIssue;
 import filter.expression.FilterExpression;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.egit.github.core.Issue;
+
 import prefs.Preferences;
 import ui.TestController;
 import ui.UI;
@@ -201,6 +204,17 @@ public class Logic {
                 .thenApply(labels -> {
                     logger.info("Changing labels for " + issue + " on UI");
                     issue.setLabels(labels);
+                    refreshUI();
+                    return true;
+                })
+                .exceptionally(Futures.withResult(false));
+    }
+
+    public CompletableFuture<Boolean> createIssue(String repoId, Issue issue) {
+        logger.info("Creating issue for " + issue + " on GitHub");
+        return repoIO.createIssue(repoId, issue)
+                .thenApply(i -> {
+                    logger.info("Creating issue for " + issue + " on UI");
                     refreshUI();
                     return true;
                 })
