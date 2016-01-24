@@ -24,7 +24,7 @@ public class IssueCreator {
 
     private void showIssueCreator() {
         Stage issueStage = new Stage();
-        issueStage.setScene(new Scene(new IssueCreatorPresenter(ui)));
+        issueStage.setScene(new Scene(new IssueCreatorPresenter(ui, issueStage)));
         issueStage.setTitle("Issue Creator");
         issueStage.show();
     }
