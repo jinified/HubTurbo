@@ -103,6 +103,7 @@ public class IssueCreatorPresenter extends BorderPane {
     protected void submit(ActionEvent event) {
         System.out.println("Sending");
         Platform.runLater(this::createIssue);
+        stage.close();
     }
     
     // Utility functions 

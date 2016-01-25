@@ -216,6 +216,7 @@ public class Logic {
                 .thenApply(i -> {
                     logger.info("Creating issue for " + issue + " on UI");
                     refreshUI();
+                    refresh(false);
                     return true;
                 })
                 .exceptionally(Futures.withResult(false));
