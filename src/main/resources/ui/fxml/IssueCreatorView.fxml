@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.BorderPane?>
 
 
-<fx:root type="BorderPane" prefWidth="700.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8">
+<BorderPane prefWidth="700.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8">
    <right>
       <VBox fx:id="sideBar" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <BorderPane.margin>
@@ -27,18 +27,22 @@
                </VBox.margin>
             </Label>
             <TextField fx:id="issueTitle" />
-            <TextArea fx:id="issueBody" prefHeight="200.0" prefWidth="200.0">
+            <SplitPane dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0">
+              <items>
+                <AnchorPane fx:id="issueBody" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0" />
+                <AnchorPane fx:id="previewBody" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0" />
+              </items>
                <VBox.margin>
                   <Insets bottom="10.0" top="10.0" />
                </VBox.margin>
-            </TextArea>
+            </SplitPane>
             <HBox fx:id="footer" prefHeight="100.0" prefWidth="200.0">
                <children>
                   <HBox fx:id="fillSpacePane" prefHeight="100.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
-                  <Button fx:id="confirmBtn" mnemonicParsing="false" text="Confirm" onAction="#submit" />
+                  <Button fx:id="confirmBtn" mnemonicParsing="false" onAction="#submit" text="Confirm" />
                </children>
             </HBox>
          </children>
       </VBox>
    </center>
-</fx:root>
+</BorderPane>
