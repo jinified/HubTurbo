@@ -15,7 +15,7 @@ public class LabelPickerUILogic {
     private List<TurboLabel> allLabels;
     private final List<PickerLabel> topLabels = new ArrayList<>();
     private List<PickerLabel> bottomLabels;
-    private final Map<String, Boolean> groups = new HashMap<>();
+    private final Map<String, Boolean> groups;
     private final Map<String, Boolean> resultList = new HashMap<>();
     private Optional<String> targetLabel = Optional.empty();
 
@@ -26,6 +26,7 @@ public class LabelPickerUILogic {
     LabelPickerUILogic(TurboIssue issue, List<TurboLabel> repoLabels, LabelPickerDialog dialog) {
         this.issue = issue;
         this.dialog = dialog;
+        this.groups = initGroups(repoLabels);
         populateAllLabels(repoLabels);
         addExistingLabels();
         updateBottomLabels("");
@@ -35,6 +36,7 @@ public class LabelPickerUILogic {
     public LabelPickerUILogic(TurboIssue issue, List<TurboLabel> repoLabels) {
         this.issue = issue;
         this.dialog = null;
+        this.groups = initGroups(repoLabels);
         populateAllLabels(repoLabels);
         addExistingLabels();
         updateBottomLabels("");
@@ -47,6 +49,20 @@ public class LabelPickerUILogic {
         return allLabels;
     }
 
+    private boolean isGroupNotAdded(TurboLabel label, Map<String, Boolean> groups) {
+        return label.getGroup().isPresent() && !groups.containsKey(label.getGroup().get());
+    }
+
+    private Map<String, Boolean> initGroups(List<TurboLabel> repoLabels) {
+        Map<String, Boolean> groups = new HashMap<>();
+        repoLabels.forEach(label -> {
+            if (isGroupNotAdded(label, groups)) {
+                groups.put(label.getGroup().get(), label.isExclusive());
+            }
+        });
+        return groups;
+    }
+
     private void populateAllLabels(List<TurboLabel> repoLabels) {
         this.allLabels = initAllLabels(repoLabels);
         // populate resultList by going through repoLabels and seeing which ones currently exist
@@ -54,9 +70,6 @@ public class LabelPickerUILogic {
         repoLabels.forEach(label -> {
             // matching with exact labels so no need to worry about capitalisation
             resultList.put(label.getActualName(), issue.getLabels().contains(label.getActualName()));
-            if (label.getGroup().isPresent() && !groups.containsKey(label.getGroup().get())) {
-                groups.put(label.getGroup().get(), label.isExclusive());
-            }
         });
     }
 
