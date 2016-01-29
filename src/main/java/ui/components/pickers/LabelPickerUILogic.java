@@ -41,9 +41,14 @@ public class LabelPickerUILogic {
         populatePanes();
     }
 
+    private List<TurboLabel> initAllLabels(List<TurboLabel> repoLabels) {
+        ArrayList<TurboLabel> allLabels = new ArrayList<>(repoLabels);
+        Collections.sort(allLabels);
+        return allLabels;
+    }
+
     private void populateAllLabels(List<TurboLabel> repoLabels) {
-        this.allLabels = new ArrayList<>(repoLabels);
-        Collections.sort(this.allLabels);
+        this.allLabels = initAllLabels(repoLabels);
         // populate resultList by going through repoLabels and seeing which ones currently exist
         // in issue.getLabels()
         repoLabels.forEach(label -> {
