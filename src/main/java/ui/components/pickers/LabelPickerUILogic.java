@@ -285,6 +285,40 @@ public class LabelPickerUILogic {
         return validGroups;
     }
 
+    private void updateSelectedLabel(PickerLabel label) {
+        if (resultList.get(label.getActualName())) {
+            label.setIsSelected(true); // add tick if selected
+        }
+    }
+
+    private List<PickerLabel> getBottomLabels(String match, List<String> validGroups) {
+        return allLabels.stream()
+                .map(label -> new PickerLabel(label, this, false))
+                .map(label -> {
+                    updateSelectedLabel(label);
+                    if (!label.getGroup().isPresent() ||
+                            !validGroups.contains(label.getGroup().get()) ||
+                            !Utility.containsIgnoreCase(label.getName(), match)) {
+                        label.setIsFaded(true); // fade out if does not match search query
+                    }
+                    return label;
+                })
+                .collect(Collectors.toList());
+    }
+
+    private List<PickerLabel> getBottomLabels(String match) {
+        return allLabels.stream()
+                .map(label -> new PickerLabel(label, this, false))
+                .map(label -> {
+                    updateSelectedLabel(label);
+                    if (!match.isEmpty() && !Utility.containsIgnoreCase(label.getActualName(), match)) {
+                        label.setIsFaded(true); // fade out if does not match search query
+                    }
+                    return label;
+                })
+                .collect(Collectors.toList());
+    }
+
     private void updateBottomLabels(String group, String match) {
         List<String> groupNames = groups.entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList());
 
@@ -292,21 +326,7 @@ public class LabelPickerUILogic {
             List<String> validGroups = getValidGroupNames(group, groupNames);
             // get all labels that contain search query
             // fade out labels which do not match
-            bottomLabels = allLabels
-                    .stream()
-                    .map(label -> new PickerLabel(label, this, false))
-                    .map(label -> {
-                        if (resultList.get(label.getActualName())) {
-                            label.setIsSelected(true); // add tick if selected
-                        }
-                        if (!label.getGroup().isPresent() ||
-                                !validGroups.contains(label.getGroup().get()) ||
-                                !Utility.containsIgnoreCase(label.getName(), match)) {
-                            label.setIsFaded(true); // fade out if does not match search query
-                        }
-                        return label;
-                    })
-                    .collect(Collectors.toList());
+            this.bottomLabels = getBottomLabels(match, validGroups);
             if (!bottomLabels.isEmpty()) highlightFirstMatchingItem(match);
         } else {
             updateBottomLabels(match);
@@ -316,22 +336,10 @@ public class LabelPickerUILogic {
     private void updateBottomLabels(String match) {
         // get all labels that contain search query
         // fade out labels which do not match
-        bottomLabels = allLabels
-                .stream()
-                .map(label -> new PickerLabel(label, this, false))
-                .map(label -> {
-                    if (resultList.get(label.getActualName())) {
-                        label.setIsSelected(true); // add tick if selected
-                    }
-                    if (!match.isEmpty() && !Utility.containsIgnoreCase(label.getActualName(), match)) {
-                        label.setIsFaded(true); // fade out if does not match search query
-                    }
-                    return label;
-                })
-                .collect(Collectors.toList());
-
+        this.bottomLabels = getBottomLabels(match);
         if (!match.isEmpty() && !bottomLabels.isEmpty()) highlightFirstMatchingItem(match);
     }
+
 
     public void moveHighlightOnLabel(boolean isDown) {
         if (hasHighlightedLabel()) {
