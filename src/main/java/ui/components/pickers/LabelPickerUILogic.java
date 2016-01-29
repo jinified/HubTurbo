@@ -271,17 +271,25 @@ public class LabelPickerUILogic {
     @SuppressWarnings("unused")
     private void ______BOTTOM_BOX______() {}
 
-    private void updateBottomLabels(String group, String match) {
-        List<String> groupNames = groups.entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList());
-        boolean isValidGroup = groupNames.stream()
+    private boolean isValidGroup(String group, List<String> groupNames) {
+        return groupNames.stream()
                 .filter(validGroup -> Utility.startsWithIgnoreCase(validGroup, group))
                 .findAny()
                 .isPresent();
+    }
 
-        if (isValidGroup) {
-            List<String> validGroups = groupNames.stream()
-                    .filter(validGroup -> Utility.startsWithIgnoreCase(validGroup, group))
-                    .collect(Collectors.toList());
+    private List<String> getValidGroupNames(String group, List<String> groupNames) {
+        List<String> validGroups = groupNames.stream()
+                .filter(validGroup -> Utility.startsWithIgnoreCase(validGroup, group))
+                .collect(Collectors.toList());
+        return validGroups;
+    }
+
+    private void updateBottomLabels(String group, String match) {
+        List<String> groupNames = groups.entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList());
+
+        if (isValidGroup(group, groupNames)) {
+            List<String> validGroups = getValidGroupNames(group, groupNames);
             // get all labels that contain search query
             // fade out labels which do not match
             bottomLabels = allLabels
