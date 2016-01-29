@@ -16,7 +16,7 @@ public class LabelPickerUILogic {
     private final List<PickerLabel> topLabels = new ArrayList<>();
     private List<PickerLabel> bottomLabels;
     private final Map<String, Boolean> groups;
-    private final Map<String, Boolean> resultList = new HashMap<>();
+    private final Map<String, Boolean> resultList;
     private Optional<String> targetLabel = Optional.empty();
 
     // Used for multiple spaces
@@ -26,8 +26,9 @@ public class LabelPickerUILogic {
     LabelPickerUILogic(TurboIssue issue, List<TurboLabel> repoLabels, LabelPickerDialog dialog) {
         this.issue = issue;
         this.dialog = dialog;
+        this.allLabels = initAllLabels(repoLabels);
         this.groups = initGroups(repoLabels);
-        populateAllLabels(repoLabels);
+        this.resultList = populateAllLabels(repoLabels);
         addExistingLabels();
         updateBottomLabels("");
         populatePanes();
@@ -36,7 +37,9 @@ public class LabelPickerUILogic {
     public LabelPickerUILogic(TurboIssue issue, List<TurboLabel> repoLabels) {
         this.issue = issue;
         this.dialog = null;
+        this.allLabels = initAllLabels(repoLabels);
         this.groups = initGroups(repoLabels);
+        this.resultList = populateAllLabels(repoLabels);
         populateAllLabels(repoLabels);
         addExistingLabels();
         updateBottomLabels("");
@@ -53,6 +56,7 @@ public class LabelPickerUILogic {
         return label.getGroup().isPresent() && !groups.containsKey(label.getGroup().get());
     }
 
+    // TODO convert stream to Map
     private Map<String, Boolean> initGroups(List<TurboLabel> repoLabels) {
         Map<String, Boolean> groups = new HashMap<>();
         repoLabels.forEach(label -> {
@@ -63,14 +67,16 @@ public class LabelPickerUILogic {
         return groups;
     }
 
-    private void populateAllLabels(List<TurboLabel> repoLabels) {
-        this.allLabels = initAllLabels(repoLabels);
+    // TODO convert stream to Map
+    private Map<String, Boolean> populateAllLabels(List<TurboLabel> repoLabels) {
         // populate resultList by going through repoLabels and seeing which ones currently exist
         // in issue.getLabels()
+        Map<String, Boolean> resultList = new HashMap<>();
         repoLabels.forEach(label -> {
             // matching with exact labels so no need to worry about capitalisation
             resultList.put(label.getActualName(), issue.getLabels().contains(label.getActualName()));
         });
+        return resultList;
     }
 
     private void populatePanes() {
