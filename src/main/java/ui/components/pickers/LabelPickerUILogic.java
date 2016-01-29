@@ -13,7 +13,7 @@ public class LabelPickerUILogic {
     private final TurboIssue issue;
     private final LabelPickerDialog dialog;
     private List<TurboLabel> allLabels;
-    private final List<PickerLabel> topLabels = new ArrayList<>();
+    private final List<PickerLabel> topLabels;
     private List<PickerLabel> bottomLabels;
     private final Map<String, Boolean> groups;
     private final Map<String, Boolean> resultList;
@@ -29,7 +29,7 @@ public class LabelPickerUILogic {
         this.allLabels = initAllLabels(repoLabels);
         this.groups = initGroups(repoLabels);
         this.resultList = populateAllLabels(repoLabels);
-        addExistingLabels();
+        this.topLabels = addExistingLabels();
         updateBottomLabels("");
         populatePanes();
     }
@@ -40,8 +40,7 @@ public class LabelPickerUILogic {
         this.allLabels = initAllLabels(repoLabels);
         this.groups = initGroups(repoLabels);
         this.resultList = populateAllLabels(repoLabels);
-        populateAllLabels(repoLabels);
-        addExistingLabels();
+        this.topLabels = addExistingLabels();
         updateBottomLabels("");
         populatePanes();
     }
@@ -142,11 +141,12 @@ public class LabelPickerUILogic {
     @SuppressWarnings("unused")
     private void ______TOP_PANE______() {}
 
-    private void addExistingLabels() {
+    private List<PickerLabel> addExistingLabels() {
         // used once to populate topLabels at the start
-        allLabels.stream()
+        return allLabels.stream()
                 .filter(label -> issue.getLabels().contains(label.getActualName()))
-                .forEach(label -> topLabels.add(new PickerLabel(label, this, true)));
+                .map(label -> new PickerLabel(label, this, true))
+                .collect(Collectors.toList());
     }
 
     private void preProcessAndUpdateTopLabels(String name) {
