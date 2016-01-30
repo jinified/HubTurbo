@@ -97,12 +97,18 @@ public class LabelPickerUILogic {
         }
     }
 
+   
+    private boolean hasChangedQuery(int previousNumberOfActions, 
+                                    String[] textArray, String query) {
+        return previousNumberOfActions != textArray.length || !query.equals(lastAction);
+    }
+
     @SuppressWarnings("PMD")
     public void processTextFieldChange(String text) {
         String[] textArray = text.split(" ");
         if (textArray.length > 0) {
             String query = textArray[textArray.length - 1];
-            if (previousNumberOfActions != textArray.length || !query.equals(lastAction)) {
+            if (hasChangedQuery(previousNumberOfActions, textArray, query)) {
                 previousNumberOfActions = textArray.length;
                 lastAction = query;
                 boolean isBottomLabelsUpdated = false;
@@ -387,6 +393,7 @@ public class LabelPickerUILogic {
         return matchingLabels;
     }
 
+    // TODO see if possibe to avoid for loop
     public void moveHighlightOnLabel(boolean isDown) {
         if (hasHighlightedLabel()) {
             // used to move the highlight on the bottom labels
