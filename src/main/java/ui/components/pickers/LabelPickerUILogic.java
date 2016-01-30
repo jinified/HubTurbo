@@ -211,7 +211,7 @@ public class LabelPickerUILogic {
     }
 
     // Performs action on topLabels based on targeted label
-    private void processTargetLabel() {
+    private void processTargetLabel(List<PickerLabel> topLabels) {
         topLabels.stream()
                 .filter(label -> label.getActualName().equals(targetLabel.get()))
                 .findFirst()
@@ -232,12 +232,20 @@ public class LabelPickerUILogic {
                 });
     }
 
+    private void addToTopLabel(String name, List<PickerLabel> topLabels) {
+        allLabels.stream()
+                .filter(label -> label.getActualName().equals(name))
+                .findFirst()
+                .ifPresent(label -> topLabels.add(
+                        new PickerLabel(label, this, false, true, false, true, true)));
+    }
+
     private void addRemovePossibleLabel(String name) {
         // Deletes previous selection
         if (targetLabel.isPresent()) {
             // if there's a previous possible selection, delete it
             // targetLabel can be
-            processTargetLabel();
+            processTargetLabel(topLabels);
             targetLabel = Optional.empty();
         }
 
@@ -263,15 +271,12 @@ public class LabelPickerUILogic {
                         });
             } else {
                 // add it to the top pane
-                allLabels.stream()
-                        .filter(label -> label.getActualName().equals(name))
-                        .findFirst()
-                        .ifPresent(label -> topLabels.add(
-                                new PickerLabel(label, this, false, true, false, true, true)));
+                addToTopLabel(name, topLabels);
             }
             targetLabel = Optional.of(name);
         }
     }
+
 
 
     // Bottom box deals with possible matches so we usually ignore the case for these methods.
