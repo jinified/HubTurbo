@@ -161,15 +161,29 @@ public class LabelPickerUILogic {
                         .stream()
                         .filter(TurboLabel::isExclusive)
                         .filter(label -> label.getGroup().get().equals(group))
-                        .forEach(label -> updateTopLabels(label.getActualName(), false));
-                updateTopLabels(name, true);
+                        .forEach(label -> updateTopLabels(label.getActualName(), 
+                                false, resultList));
+                updateTopLabels(name, true, resultList);
             } else {
-                updateTopLabels(name, !resultList.get(name));
+                updateTopLabels(name, !resultList.get(name), resultList);
             }
         }
     }
 
-    private void updateTopLabels(String name, boolean isAdd) {
+    private void removeMatchingLabels(String name, List<PickerLabel> topLabels) {
+        topLabels.stream()
+                .filter(label -> label.getActualName().equals(name))
+                .findFirst()
+                .ifPresent(label -> {
+                    if (issue.getLabels().contains(name)) {
+                        label.setIsRemoved(true);
+                    } else {
+                        topLabels.remove(label);
+                    }
+                });
+    }
+
+    private void updateTopLabels(String name, boolean isAdd, Map<String, Boolean> resultList) {
         // adds new labels to the end of the list
         resultList.put(name, isAdd); // update resultList first
         if (isAdd) {
@@ -189,18 +203,10 @@ public class LabelPickerUILogic {
                         .ifPresent(label -> topLabels.add(new PickerLabel(label, this, true)));
             }
         } else {
-            topLabels.stream()
-                    .filter(label -> label.getActualName().equals(name))
-                    .findFirst()
-                    .ifPresent(label -> {
-                        if (issue.getLabels().contains(name)) {
-                            label.setIsRemoved(true);
-                        } else {
-                            topLabels.remove(label);
-                        }
-                    });
+            removeMatchingLabels(name, topLabels);
         }
     }
+
 
     private boolean isInTopLabels(String name) {
         // used to prevent duplicates in topLabels
@@ -240,6 +246,30 @@ public class LabelPickerUILogic {
                         new PickerLabel(label, this, false, true, false, true, true)));
     }
 
+    // TODO remove access to resultList
+    private void setTargetLabelState(String name, TurboIssue issue, PickerLabel label) {
+        label.setIsHighlighted(true);
+        if (issue.getLabels().contains(name)) {
+            // if it is an existing label toggle fade and strike through
+            label.setIsFaded(resultList.get(name));
+            label.setIsRemoved(resultList.get(name));
+        } else {
+            // else set fade and strike through
+            // if space is pressed afterwards, label is removed from topLabels altogether
+            label.setIsFaded(true);
+            label.setIsRemoved(true);
+        }
+    }
+
+    private void setFirstMatchingTopLabel(String name) {
+        topLabels.stream()
+                .filter(label -> label.getActualName().equals(name))
+                .findFirst()
+                .ifPresent(label -> {
+                    setTargetLabelState(name, issue, label);
+                });
+    }
+
     private void addRemovePossibleLabel(String name) {
         // Deletes previous selection
         if (targetLabel.isPresent()) {
@@ -253,22 +283,7 @@ public class LabelPickerUILogic {
             // Try to add current selection
             if (isInTopLabels(name)) {
                 // if it exists in the top pane
-                topLabels.stream()
-                        .filter(label -> label.getActualName().equals(name))
-                        .findFirst()
-                        .ifPresent(label -> {
-                            label.setIsHighlighted(true);
-                            if (issue.getLabels().contains(name)) {
-                                // if it is an existing label toggle fade and strike through
-                                label.setIsFaded(resultList.get(name));
-                                label.setIsRemoved(resultList.get(name));
-                            } else {
-                                // else set fade and strike through
-                                // if space is pressed afterwards, label is removed from topLabels altogether
-                                label.setIsFaded(true);
-                                label.setIsRemoved(true);
-                            }
-                        });
+                setFirstMatchingTopLabel(name);
             } else {
                 // add it to the top pane
                 addToTopLabel(name, topLabels);
@@ -276,6 +291,7 @@ public class LabelPickerUILogic {
             targetLabel = Optional.of(name);
         }
     }
+
 
 
 
