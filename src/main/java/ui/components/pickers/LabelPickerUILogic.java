@@ -183,29 +183,40 @@ public class LabelPickerUILogic {
                 });
     }
 
+    // Re-enable a label if it is removed
+    private void resetRemovedLabel(String name, List<PickerLabel> topLabels) {
+        topLabels.stream()
+                .filter(label -> label.getActualName().equals(name))
+                .forEach(label -> {
+                    label.setIsRemoved(false);
+                    label.setIsFaded(false);
+                });
+    }
+
+    // Add to topLabels if not exists
+    private void addNewLabels(String name, Map<String, Boolean> resultList) {
+        allLabels.stream()
+                .filter(label -> label.getActualName().equals(name))
+                .filter(label -> resultList.get(label.getActualName()))
+                .filter(label -> !isInTopLabels(label.getActualName()))
+                .findFirst()
+                .ifPresent(label -> topLabels.add(new PickerLabel(label, this, true)));
+    }
+
     private void updateTopLabels(String name, boolean isAdd, Map<String, Boolean> resultList) {
         // adds new labels to the end of the list
         resultList.put(name, isAdd); // update resultList first
         if (isAdd) {
             if (issue.getLabels().contains(name)) {
-                topLabels.stream()
-                        .filter(label -> label.getActualName().equals(name))
-                        .forEach(label -> {
-                            label.setIsRemoved(false);
-                            label.setIsFaded(false);
-                        });
+                resetRemovedLabel(name, topLabels);
             } else {
-                allLabels.stream()
-                        .filter(label -> label.getActualName().equals(name))
-                        .filter(label -> resultList.get(label.getActualName()))
-                        .filter(label -> !isInTopLabels(label.getActualName()))
-                        .findFirst()
-                        .ifPresent(label -> topLabels.add(new PickerLabel(label, this, true)));
+                addNewLabels(name, resultList);
             }
         } else {
             removeMatchingLabels(name, topLabels);
         }
     }
+
 
 
     private boolean isInTopLabels(String name) {
