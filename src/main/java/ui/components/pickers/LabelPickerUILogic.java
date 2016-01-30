@@ -103,6 +103,24 @@ public class LabelPickerUILogic {
         return previousNumberOfActions != textArray.length || !query.equals(lastAction);
     }
 
+    private boolean isBottomLabelsUpdated(String query) {
+        boolean isBottomLabelsUpdated = false;
+        // group check
+        // TODO rewrite this to remove some nesting, and the PMD warning
+        if (TurboLabel.getDelimiter(query).isPresent()) {
+            String delimiter = TurboLabel.getDelimiter(query).get();
+            String[] queryArray = query.split(Pattern.quote(delimiter));
+            if (queryArray.length == 1) {
+                isBottomLabelsUpdated = true;
+                updateBottomLabels(queryArray[0], "");
+            } else if (queryArray.length == 2) {
+                isBottomLabelsUpdated = true;
+                updateBottomLabels(queryArray[0], queryArray[1]);
+            }
+        }
+        return isBottomLabelsUpdated;
+    }
+
     @SuppressWarnings("PMD")
     public void processTextFieldChange(String text) {
         String[] textArray = text.split(" ");
@@ -111,21 +129,7 @@ public class LabelPickerUILogic {
             if (hasChangedQuery(previousNumberOfActions, textArray, query)) {
                 previousNumberOfActions = textArray.length;
                 lastAction = query;
-                boolean isBottomLabelsUpdated = false;
-
-                // group check
-                // TODO rewrite this to remove some nesting, and the PMD warning
-                if (TurboLabel.getDelimiter(query).isPresent()) {
-                    String delimiter = TurboLabel.getDelimiter(query).get();
-                    String[] queryArray = query.split(Pattern.quote(delimiter));
-                    if (queryArray.length == 1) {
-                        isBottomLabelsUpdated = true;
-                        updateBottomLabels(queryArray[0], "");
-                    } else if (queryArray.length == 2) {
-                        isBottomLabelsUpdated = true;
-                        updateBottomLabels(queryArray[0], queryArray[1]);
-                    }
-                }
+                boolean isBottomLabelsUpdated = isBottomLabelsUpdated(query);
 
                 if (!isBottomLabelsUpdated) {
                     updateBottomLabels(query);
@@ -140,6 +144,7 @@ public class LabelPickerUILogic {
             }
         }
     }
+
 
     /*
     * Top pane methods do not need to worry about capitalisation because they
