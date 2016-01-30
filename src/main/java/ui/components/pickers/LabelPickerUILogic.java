@@ -26,10 +26,10 @@ public class LabelPickerUILogic {
     LabelPickerUILogic(TurboIssue issue, List<TurboLabel> repoLabels, LabelPickerDialog dialog) {
         this.issue = issue;
         this.dialog = dialog;
-        this.allLabels = initAllLabels(repoLabels);
-        this.groups = initGroups(repoLabels);
-        this.resultList = populateAllLabels(repoLabels);
-        this.topLabels = addExistingLabels();
+        allLabels = initAllLabels(repoLabels);
+        groups = initGroups(repoLabels);
+        resultList = populateAllLabels(repoLabels, issue);
+        topLabels = addExistingLabels();
         updateBottomLabels("");
         populatePanes();
     }
@@ -37,10 +37,10 @@ public class LabelPickerUILogic {
     public LabelPickerUILogic(TurboIssue issue, List<TurboLabel> repoLabels) {
         this.issue = issue;
         this.dialog = null;
-        this.allLabels = initAllLabels(repoLabels);
-        this.groups = initGroups(repoLabels);
-        this.resultList = populateAllLabels(repoLabels);
-        this.topLabels = addExistingLabels();
+        allLabels = initAllLabels(repoLabels);
+        groups = initGroups(repoLabels);
+        resultList = populateAllLabels(repoLabels, issue);
+        topLabels = addExistingLabels();
         updateBottomLabels("");
         populatePanes();
     }
@@ -67,7 +67,8 @@ public class LabelPickerUILogic {
     }
 
     // TODO convert stream to Map
-    private Map<String, Boolean> populateAllLabels(List<TurboLabel> repoLabels) {
+    private Map<String, Boolean> populateAllLabels(List<TurboLabel> repoLabels, 
+        TurboIssue issue) {
         // populate resultList by going through repoLabels and seeing which ones currently exist
         // in issue.getLabels()
         Map<String, Boolean> resultList = new HashMap<>();
@@ -341,13 +342,18 @@ public class LabelPickerUILogic {
     }
 
 
+    private List<PickerLabel> findMatchingLabels() {
+        List<PickerLabel> matchingLabels = bottomLabels.stream()
+                .filter(label -> !label.isFaded())
+                .collect(Collectors.toList());
+        return matchingLabels;
+    }
+
     public void moveHighlightOnLabel(boolean isDown) {
         if (hasHighlightedLabel()) {
             // used to move the highlight on the bottom labels
             // find all matching labels
-            List<PickerLabel> matchingLabels = bottomLabels.stream()
-                    .filter(label -> !label.isFaded())
-                    .collect(Collectors.toList());
+            List<PickerLabel> matchingLabels = findMatchingLabels();
 
             // move highlight around
             for (int i = 0; i < matchingLabels.size(); i++) {
@@ -368,10 +374,9 @@ public class LabelPickerUILogic {
         }
     }
 
+
     private void highlightFirstMatchingItem(String match) {
-        List<PickerLabel> matches = bottomLabels.stream()
-                .filter(label -> !label.isFaded())
-                .collect(Collectors.toList());
+        List<PickerLabel> matches = findMatchingLabels();
 
         // try to highlight labels that begin with match first
         matches.stream()
