@@ -6,8 +6,11 @@ import backend.resource.MultiModel;
 import backend.resource.TurboIssue;
 import filter.expression.FilterExpression;
 import javafx.application.Platform;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.egit.github.core.Issue;
+
 import prefs.Preferences;
 import ui.GuiElement;
 import ui.TestController;
@@ -211,6 +214,25 @@ public class Logic {
         logger.info("Changing labels for " + issue + " on GitHub");
         return repoOpControl.replaceIssueLabels(issue, newLabels)
                 .thenApply(labels -> labels.containsAll(newLabels))
+                .exceptionally(Futures.withResult(false));
+    }
+
+    /**
+     * Create new issue or edit details of existigng issue
+     * @param repoId
+     * @param issue
+     * @return
+     */
+    public CompletableFuture<Boolean> createIssue(String repoId, TurboIssue issue) {
+        logger.info("Creating issue for " + issue + " on GitHub");
+        return repoIO.createIssue(issue)
+                .thenApply(i -> {
+                    logger.info("Creating issue for " + issue + " on UI");
+                    // TODO update changes locally first
+                    refreshUI();
+                    refresh(false);
+                    return true;
+                })
                 .exceptionally(Futures.withResult(false));
     }
 
