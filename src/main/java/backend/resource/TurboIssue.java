@@ -303,6 +303,10 @@ public class TurboIssue {
         return newIssue;
     }
 
+    public static boolean isNewIssue(TurboIssue issue) {
+        return issue.getId() == NEWISSUE_ID;
+    }
+
     public static Optional<Integer> findIssueWithId(List<TurboIssue> issues, int id) {
         int i = 0;
         for (TurboIssue issue : issues) {
@@ -490,4 +494,5 @@ public class TurboIssue {
         result = 31 * result + (milestone != null ? milestone.hashCode() : 0);
         return result;
     }
+
 }
