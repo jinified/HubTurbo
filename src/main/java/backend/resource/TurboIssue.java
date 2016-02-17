@@ -307,6 +307,15 @@ public class TurboIssue {
         return issue.getId() == NEWISSUE_ID;
     }
 
+    /**
+     * Generates new TurboIssue given a repoId
+     * @param repoId
+     * @return
+     */
+    public static TurboIssue createNewIssue(String repoId) {
+        return new TurboIssue(repoId, NEWISSUE_ID, "");
+    }
+
     public static Optional<Integer> findIssueWithId(List<TurboIssue> issues, int id) {
         int i = 0;
         for (TurboIssue issue : issues) {
